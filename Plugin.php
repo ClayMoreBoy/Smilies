@@ -2,13 +2,12 @@
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
 /**
- * 新版评论表情与贴图插件 原作者<a href="http://kan.willin.org/typecho/smilies-plugin.html">willin kan</a>
+ * 新版表情与贴图插件，支持评论及文章。插件原作者<a href="http://kan.willin.org/typecho/smilies-plugin.html">willin kan</a>，新版插件V1.0.7作者<a href="http://www.jzwalk.com/archives/net/smilies-for-typecho">羽中</a>。
  * 
  * @package Smilies
- * @author 羽中
- * @version 1.0.7
- * @dependence 13.12.12-*
- * @link http://www.jzwalk.com/archives/net/smilies-for-typecho
+ * @author LT21
+ * @version 1.1.0
+ * @link http://lt21.me
  */
 class Smilies_Plugin implements Typecho_Plugin_Interface
 {
@@ -22,7 +21,13 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	public static function activate()
 	{
 		Typecho_Plugin::factory('Widget_Abstract_Comments')->contentEx = array('Smilies_Plugin','showsmilies');
+		Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('Smilies_Plugin','showsmilies');
 		Typecho_Plugin::factory('Widget_Archive')->footer = array('Smilies_Plugin','insertjs');
+
+		Typecho_Plugin::factory('admin/write-post.php')->option = array('Smilies_Plugin', 'render');
+        Typecho_Plugin::factory('admin/write-page.php')->option = array('Smilies_Plugin', 'render');
+        Typecho_Plugin::factory('admin/write-post.php')->bottom = array('Smilies_Plugin', 'insertjs');
+        Typecho_Plugin::factory('admin/write-page.php')->bottom = array('Smilies_Plugin', 'insertjs');
 	}
 
 	/**
@@ -72,7 +77,7 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	</script>
 <?php
 		$smiliesset= new Typecho_Widget_Helper_Form_Element_Select('smiliesset',
-			self::parsefolders(),'wp-smilies',_t('表情风格'),_t('插件目录下若新增表情风格文件夹可刷新本页在下拉菜单中选择. <br/>注意图片名须参考其他文件夹保持一致, 如icon_cry.gif对应哭泣表情等'));
+			self::parsefolders(),'hangout',_t('表情风格'),_t('插件目录下若新增表情风格文件夹可刷新本页在下拉菜单中选择. <br/>注意图片名须参考其他文件夹保持一致, 如icon_cry.gif对应哭泣表情等'));
 		$form->addInput($smiliesset);
 
 		$allowpop = new Typecho_Widget_Helper_Form_Element_Radio('allowpop',
@@ -129,69 +134,81 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 		$settings = $options->plugin('Smilies');
 
 		$smiliestrans = array(
-			':?:'		=> 'icon_question.gif',
-			':razz:'	=> 'icon_razz.gif',
-			':sad:'		=> 'icon_sad.gif',
-			':evil:'	=> 'icon_evil.gif',
-			':!:'		=> 'icon_exclaim.gif',
-			':smile:'	=> 'icon_smile.gif',
-			':oops:'	=> 'icon_redface.gif',
-			':grin:'	=> 'icon_biggrin.gif',
-			':eek:'		=> 'icon_surprised.gif',
-			':shock:'	=> 'icon_eek.gif',
-			':???:'		=> 'icon_confused.gif',
-			':cool:'	=> 'icon_cool.gif',
-			':lol:'		=> 'icon_lol.gif',
-			':mad:'		=> 'icon_mad.gif',
-			':twisted:' => 'icon_twisted.gif',
-			':roll:'	=> 'icon_rolleyes.gif',
-			':wink:'	=> 'icon_wink.gif',
-			':idea:'	=> 'icon_idea.gif',
-			':arrow:'	=> 'icon_arrow.gif',
-			':neutral:' => 'icon_neutral.gif',
-			':cry:'		=> 'icon_cry.gif',
-			':mrgreen:' => 'icon_mrgreen.gif',
-			'8-)'		=> 'icon_cool.gif',
-			'8-O'		=> 'icon_eek.gif',
-			':-('		=> 'icon_sad.gif',
-			':-)'		=> 'icon_smile.gif',
-			':-?'		=> 'icon_confused.gif',
-			':-D'		=> 'icon_biggrin.gif',
-			':-P'		=> 'icon_razz.gif',
-			':-o'		=> 'icon_surprised.gif',
-			':-x'		=> 'icon_mad.gif',
-			':-|'		=> 'icon_neutral.gif',
-			';-)'		=> 'icon_wink.gif',
-			'8)'		=> 'icon_cool.gif',
-			'8O'		=> 'icon_eek.gif',
-			':('		=> 'icon_sad.gif',
-			':)'		=> 'icon_smile.gif',
-			':?'		=> 'icon_confused.gif',
-			':D'		=> 'icon_biggrin.gif',
-			':P'		=> 'icon_razz.gif',
-			':o'		=> 'icon_surprised.gif',
-			':x'		=> 'icon_mad.gif',
-			':|'		=> 'icon_neutral.gif',
-			';)'		=> 'icon_wink.gif',
+			':?:'		=> 'icon_question.png',
+			':razz:'	=> 'icon_razz.png',
+			':sad:'		=> 'icon_sad.png',
+			':evil:'	=> 'icon_evil.png',
+			':!:'		=> 'icon_exclaim.png',
+			':smile:'	=> 'icon_smile.png',
+			':oops:'	=> 'icon_redface.png',
+			':grin:'	=> 'icon_biggrin.png',
+			':eek:'		=> 'icon_surprised.png',
+			':shock:'	=> 'icon_eek.png',
+			':???:'		=> 'icon_confused.png',
+			':cool:'	=> 'icon_cool.png',
+			':lol:'		=> 'icon_lol.png',
+			':mad:'		=> 'icon_mad.png',
+			':twisted:' => 'icon_twisted.png',
+			':roll:'	=> 'icon_rolleyes.png',
+			':wink:'	=> 'icon_wink.png',
+			':idea:'	=> 'icon_idea.png',
+			':arrow:'	=> 'icon_arrow.png',
+			':neutral:' => 'icon_neutral.png',
+			':cry:'		=> 'icon_cry.png',
+			':mrgreen:' => 'icon_mrgreen.png',
+			// '8-)'		=> 'icon_cool.png',
+			// '8-O'		=> 'icon_eek.png',
+			// ':-('		=> 'icon_sad.png',
+			// ':-)'		=> 'icon_smile.png',
+			// ':-?'		=> 'icon_confused.png',
+			// ':-D'		=> 'icon_biggrin.png',
+			// ':-P'		=> 'icon_razz.png',
+			// ':-o'		=> 'icon_surprised.png',
+			// ':-x'		=> 'icon_mad.png',
+			// ':-|'		=> 'icon_neutral.png',
+			// ';-)'		=> 'icon_wink.png',
+			// '8)'		=> 'icon_cool.png',
+			// '8O'		=> 'icon_eek.png',
+			// ':('		=> 'icon_sad.png',
+			// ':)'		=> 'icon_smile.png',
+			// ':?'		=> 'icon_confused.png',
+			// ':D'		=> 'icon_biggrin.png',
+			// ':P'		=> 'icon_razz.png',
+			// ':o'		=> 'icon_surprised.png',
+			// ':x'		=> 'icon_mad.png',
+			// ':|'		=> 'icon_neutral.png',
+			// ';)'		=> 'icon_wink.png',
 		);
 
 		$smiliesurl = Typecho_Common::url('Smilies/'.urlencode($settings->smiliesset).'/',$options->pluginUrl);
 		$smiled = array();
 
 		foreach ($smiliestrans as $tag=>$grin) {
-			$smilies = '<img src="'.$smiliesurl.'icon_smile.gif" alt="选择表情"/>';
+			$smilies = '<img src="'.$smiliesurl.'icon_smile.png" alt="选择表情" style="width:1.5em;height:1.5em"/>';
 
 			if (!in_array($grin,$smiled)) {
 				$smiled[] = $grin;
-				$smiliesicon[] = '<span onclick="Smilies.grin(\''.$tag.'\');" style="cursor:pointer;" data-tag=" '.$tag.' "><img style="margin:2px;" src="'.$smiliesurl.$grin.'" alt="'.$grin.'"/></span>';
+				$s = (!$settings->jqmode) ? ' onclick="Smilies.grin(\''.$tag.'\');"' : '';
+				$smiliesicon[] = '<span'.$s.' style="cursor:pointer;" data-tag=" '.$tag.' "><img style="margin:2px;width:1.5em;height:1.5em" src="'.$smiliesurl.$grin.'" alt="'.$grin.'"/></span>';
 			}
 
 			$smiliestag[] = $tag;
 
-			$smiliesimg[] = '<img class="smilies" src="'.$smiliesurl.$grin.'" alt="'.$grin.'"/>';
+			$smiliesimg[] = '<img class="smilies" src="'.$smiliesurl.$grin.'" alt="'.$grin.'" style="width:1.5em;height:1.5em" />';
 		}
 
 		return array($smilies,$smiliesicon,$smiliestag,$smiliesimg);
+	}
+	/**
+	 * 在后台编辑页面加入表情图片
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public static function render() {
+		echo '<section class="typecho-post-option"><label for="template" class="typecho-label">表情贴图</label><p>';
+		self::output();
+		echo '</p></section>';
 	}
 
 	/**
@@ -205,16 +222,15 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	{
 		$text = empty($lastResult) ? $text : $lastResult;
 
-		Helper::options()->commentsHTMLTagAllowed .= '<img src="" alt=""/>';
+		Helper::options()->commentsHTMLTagAllowed .= '<img src="" alt="" style="width:1.5em;height:1.5em"/>';
 
 		$arrays = self::parsesmilies();
 
-		if ($widget instanceof Widget_Abstract_Comments) {
+		if ($widget instanceof Widget_Abstract_Comments || $widget instanceof Widget_Abstract_Contents) {
 			return str_replace($arrays[2],$arrays[3],$text);
 		} else {
 			return $text;
 		}
-
 	}
 
 	/**
@@ -229,8 +245,8 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 		$settings = $options->plugin('Smilies');
 
 		$smilies = '';
-		$shadow = 'box-shadow:rgba(190,190,190,1) 1px 3px 15px';
-		$border = 'border-radius:11px';
+		$shadow = 'box-shadow: rgba(190,190,190,1) 1px 3px 15px';
+		$border = 'border-radius: 11px';
 		$arrays = self::parsesmilies();
 
 		$icons = array_unique($arrays[1]);
@@ -239,15 +255,17 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 		}
 
 		$smiliesdisplay = ($settings->allowpop) ?
-			'display:none;position:absolute;z-index:99;width:240px;margin-top:-70px;padding:5px;background:#fff;border:1px solid #bbb;-moz-'.$shadow.';-webkit-'.$shadow.';-khtml-'.$shadow.';'.$shadow.';-moz-'.$border.';-webkit-'.$border.';-khtml-'.$border.';'.$border.';':
-			'display:block;';
+			' style="display:none;position:absolute;z-index:99;width:240px;margin-top:-70px;padding:5px;background:#fff;border:1px solid #bbb;-moz-'.$shadow.';-webkit-'.$shadow.';-khtml-'.$shadow.';'.$shadow.';-moz-'.$border.';-webkit-'.$border.';-khtml-'.$border.';'.$border.';"':
+			' style="display:block;"';
 
-		$output = '<div id="smiliesbox" style="'.$smiliesdisplay.'">';
+		$output = '<div id="smiliesbox"'.$smiliesdisplay.'>';
 		$output .= $smilies;
 		$output .= '</div>';
 
-		if ($settings->allowpop)
-			$output .= '<span onclick="Smilies.showBox();" style="cursor:pointer;" id="smiliesbutton" title="选择表情">'.$arrays[0].'</span>';
+		if ($settings->allowpop) {
+			$s = (!$settings->jqmode) ? ' onclick="Smilies.showBox();"' : '';
+			$output .= '<span'.$s.' style="cursor:pointer;" id="smiliesbutton" title="选择表情">'.$arrays[0].'</span>';
+		}
 
 		echo $output;
 	}
@@ -261,6 +279,8 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	public static function insertjs($widget)
 	{
 		$settings = Helper::options()->plugin('Smilies');
+
+		$textareaid = $widget->is('single') ? 'textarea' : 'text';
 
 		if ($settings->jqmode) {
 			//jquery模式
@@ -283,7 +303,7 @@ $(function() {
 			$js .= '
 	box.find("span").click(function() {
 		var b = $(this).attr("data-tag");
-		$("#textarea").insert(b);
+		$("#'.$textareaid.'").insert(b);
 		button.mouseout();
 	});
 	button.on({
@@ -302,7 +322,7 @@ $(function() {
 		}
 	});
 $.fn.extend({
-	"insert":function(myValue) {
+	"insert": function(myValue) {
 		var $t = $(this)[0];
 		if (document.selection) {
 			this.focus();
@@ -313,7 +333,7 @@ $.fn.extend({
 			var startPos = $t.selectionStart;
 			var endPos = $t.selectionEnd;
 			var scrollTop = $t.scrollTop;
-			$t.value = $t.value.substring(0,startPos) + myValue + $t.value.substring(endPos,$t.value.length);
+			$t.value = $t.value.substring(0, startPos) + myValue + $t.value.substring(endPos, $t.value.length);
 			this.focus();
 			$t.selectionStart = startPos + myValue.length;
 			$t.selectionEnd = startPos + myValue.length;
@@ -333,25 +353,22 @@ $.fn.extend({
 <script type="text/javascript">
 //<![CDATA[
 Smilies = {
-	dom:function(id) {
+	dom : function(id) {
 		return document.getElementById(id);
 	},
-	showBox:function () {
+	showBox : function () {
 		this.dom("smiliesbox").style.display = "block";
-		document.onclick = function() {
-			this.closeBox();
-		}
 	},
-	closeBox:function () {
+	closeBox : function () {
 		this.dom("smiliesbox").style.display = "none";
 	},
-	grin:function (tag) {
-		tag = \' \'+tag+\' \';myField = this.dom("textarea");
-		document.selection?(myField.focus(),sel = document.selection.createRange(),sel.text = tag,myField.focus()):this.insertTag(tag);
+	grin : function (tag) {
+		tag = \' \' + tag + \' \'; myField = this.dom("'.$textareaid.'");
+		document.selection ? (myField.focus(),sel = document.selection.createRange(),sel.text = tag,myField.focus()) : this.insertTag(tag);
 	},
-	insertTag:function (tag) {
-		myField = Smilies.dom("textarea");
-		myField.selectionStart || myField.selectionStart == "0"?(
+	insertTag : function (tag) {
+		myField = Smilies.dom("'.$textareaid.'");
+		myField.selectionStart || myField.selectionStart == "0" ? (
 			startPos = myField.selectionStart,
 			endPos = myField.selectionEnd,
 			cursorPos = startPos,
@@ -376,7 +393,9 @@ Smilies = {
 </script>';
 		}
 
-		if ($widget->is('single')) {
+		if ($widget instanceof Widget_Archive) {
+			if($widget->is('single')) echo $js;
+		} else if ($widget instanceof Widget_Abstract_Contents) {
 			echo $js;
 		}
 
