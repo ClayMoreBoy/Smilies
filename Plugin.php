@@ -22,6 +22,7 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	{
 		Typecho_Plugin::factory('Widget_Abstract_Comments')->contentEx = array('Smilies_Plugin','showsmilies');
 		Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('Smilies_Plugin','showsmilies');
+		Typecho_Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('Smilies_Plugin','showsmilies');
 		Typecho_Plugin::factory('Widget_Archive')->footer = array('Smilies_Plugin','insertjs');
 
 		Typecho_Plugin::factory('admin/write-post.php')->option = array('Smilies_Plugin', 'render');
