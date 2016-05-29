@@ -58,10 +58,7 @@ class Smilies_Plugin implements Typecho_Plugin_Interface
 	$(function() {
 		var jqmode1 = $("#jqmode-1"),
 			jqmode0 = $("#jqmode-0");
-		if(jqmode1.is(":checked")) {
-			return false;
-		}
-		else {
+		if(!jqmode1.is(":checked")) {
 			var jqhost = $("#typecho-option-item-jqhost-3");
 			jqhost.attr("style","color:#999")
 			.find("input").attr("disabled","disabled");
